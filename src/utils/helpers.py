@@ -1,27 +1,22 @@
 import os
 from datetime import datetime
 
-def get_output_paths(base_folder: str = None) -> dict:
-    """
-    Returns a dict with absolute paths for raw, processed and report outputs,
-    and creates those folders if they don’t exist.
-    """
-    # 1) Where do we store? Defaults to PROJECT_ROOT/outputs
-    project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-    outputs_root = base_folder or os.path.join(project_root, "outputs")
-
-    # 2) Create subfolders
-    raw_dir       = os.path.join(outputs_root, "raw")
-    processed_dir = os.path.join(outputs_root, "processed")
-    reports_dir   = os.path.join(outputs_root, "reports")
-
-    for d in (raw_dir, processed_dir, reports_dir):
-        os.makedirs(d, exist_ok=True)
-
-    # 3) Build filepaths
+def get_output_paths():
     today = datetime.today().strftime("%Y-%m-%d")
+    base = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    raw_dir = os.path.join(base, "outputs", "raw")
+    proc_dir = os.path.join(base, "outputs", "processed")
+    rep_dir = os.path.join(base, "outputs", "reports")
+    os.makedirs(raw_dir, exist_ok=True)
+    os.makedirs(proc_dir, exist_ok=True)
+    os.makedirs(rep_dir, exist_ok=True)
     return {
-        "raw":       os.path.join(raw_dir,        f"books_{today}.csv"),
-        "processed": os.path.join(processed_dir,  f"processed_{today}.csv"),
-        "report":    os.path.join(reports_dir,    f"report_{today}.html"),
+        "raw": os.path.join(raw_dir, f"books_{today}.json"),
+        "processed": os.path.join(proc_dir, f"processed_books_{today}.csv"),
+        "report": os.path.join(rep_dir, f"report_{today}.html"),
     }
+
+def save_raw(data, path):
+    import json
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
